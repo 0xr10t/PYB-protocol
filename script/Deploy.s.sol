@@ -18,16 +18,19 @@ contract DeployScript is Script {
             1 ether // minRebalanceAmount
         );
 
+        // Deploy a temporary proxy contract that will be replaced with BondFactory
+        address tempBondFactory = address(new TemporaryProxy());
+
         // Deploy ProtocolTreasury with placeholder addresses
         ProtocolTreasury treasury = new ProtocolTreasury(
             address(0), // Will be updated with yieldDistribution
             address(strategyManager)
         );
 
-        // Deploy YieldDistribution
+        // Deploy YieldDistribution with temporary BondFactory
         YieldDistribution yieldDistribution = new YieldDistribution(
             address(treasury),
-            address(0), // Will be updated with factory
+            tempBondFactory, // Temporary address that will be updated
             100 // 1% protocol fee
         );
 
@@ -47,5 +50,14 @@ contract DeployScript is Script {
         strategyManager.addSupportedToken(address(0)); // ETH
 
         vm.stopBroadcast();
+
+        console.log("Deployment Addresses:");
+        console.log("StrategyManager:", address(strategyManager));
+        console.log("Treasury:", address(treasury));
+        console.log("YieldDistribution:", address(yieldDistribution));
+        console.log("BondFactory:", address(factory));
     }
-} 
+}
+
+// Temporary proxy contract to provide a non-zero address
+contract TemporaryProxy {} 

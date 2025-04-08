@@ -122,4 +122,4 @@ contract ProtocolTreasury is Ownable, ReentrancyGuard {
         require(_strategyManager != address(0), "Invalid strategy manager address");
         strategyManager = _strategyManager;
     }
-} 
+}

@@ -1,0 +1,13 @@
+web3==7.10.0
+pandas==2.2.0
+numpy==1.26.4
+scikit-learn==1.6.1
+torch==2.6.0
+torchvision==0.21.0
+torchaudio==2.6.0
+python-dotenv==1.0.1
+requests==2.32.3
+aiohttp==3.11.11
+eth-account==0.13.6
+eth-typing==5.2.0
+eth-utils==5.2.0 

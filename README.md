@@ -1,106 +1,131 @@
-# Perpetual Yield Bonds (PYB) Protocol
+# PYB Protocol
 
-A DeFi protocol that lets you earn passive yield on your assets by converting them into tradeable NFT bonds. Simply deposit your assets (ETH, USDC, etc.) and start earning yield immediately!
+Welcome to the **PYB Protocol**! This decentralized finance (DeFi) protocol allows users to deposit collateral, receive yield-generating NFTs, and participate in a robust ecosystem of yield optimization and strategy management.
 
-## How It Works
+---
 
-### 1. Choose Your Bond Series
-- Select from available bond series (e.g., USDC with 5% APY, ETH with 4% APY)
-- Each series has different:
-  - Collateral tokens
-  - Yield rates
-  - Risk levels
+## **Features**
 
-### 2. Deposit Your Assets
-1. Connect your wallet
-2. Approve the protocol to spend your tokens
-3. Choose your deposit amount
-4. Receive a bond NFT representing your position
+### 1. **Bond NFTs**
+- Users deposit collateral (e.g., ETH, USDC) and receive **Bond NFTs**.
+- These NFTs represent ownership of the deposited collateral and entitle the holder to claim yield.
+- Fully compliant with the ERC721 standard, enabling easy transfer and trading.
 
-### 3. Earn Yield
-Your bond NFT automatically earns yield based on:
-- Amount deposited
-- Time elapsed
-- Series yield rate
+### 2. **Yield Generation**
+- Collateral is deployed to yield-generating strategies via the **StrategyManager**.
+- Yield is distributed periodically to NFT holders through the **YieldDistribution** contract.
+- NFT holders can claim or reinvest their yield.
 
-You can:
-- **Claim Yield**: Get your earned yield in tokens
-  - Available anytime
-  - Small protocol fee (1%)
-  - No lockup period
-- **Reinvest Yield**: Add earned yield to your bond
-  - Increases your principal
-  - Earns compound interest
-  - Also subject to protocol fee
+### 3. **Strategy Management**
+- The **StrategyManager** optimizes collateral allocation across multiple strategies.
+- Supports rebalancing to maintain efficiency and maximize returns.
+- Integrates with external lending protocols (e.g., Aave, Compound).
 
-### 4. Manage Your Bonds
-- View all your bonds in your wallet
-- Track yield accumulation
-- Transfer or sell your bond NFTs
-- Claim or reinvest yield anytime
+### 4. **Protocol Treasury**
+- The **ProtocolTreasury** collects fees and manages reserves.
+- Emergency reserves ensure protocol stability.
+- Transparent fee collection and reserve management.
 
-## Example: Earning Yield with USDC
+### 5. **AI-Powered Optimization**
+- AI agents optimize yield strategies, manage risks, and rebalance portfolios.
+- Includes:
+  - **YieldStrategyAgent**: Maximizes yield across strategies.
+  - **RiskManagementAgent**: Monitors and mitigates risks.
+  - **RebalancingAgent**: Ensures optimal collateral allocation.
+  - **PriceOracleAgent**: Tracks market prices for decision-making.
 
-```plaintext
-Initial Deposit:
-- Deposit: 1,000 USDC
-- Series: Bond Series #1
-- Yield Rate: 5% APY
-- Get: Bond NFT #123
+---
 
-After 30 days:
-- Earned Yield: ~4.17 USDC (5% / 12 months)
-- Options:
-  a) Claim: Receive ~4.13 USDC (after 1% fee)
-  b) Reinvest: Principal becomes 1,004.13 USDC
-```
+## **How It Works**
 
-## Benefits
+### **Step 1: Deposit Collateral**
+- Users deposit collateral into the protocol via the `BondFactory` contract.
+- A Bond NFT is minted and sent to the user.
 
-- **Passive Income**: Earn yield without active management
-- **Flexibility**: Claim or compound your yield
-- **Transparency**: All operations visible on-chain
-- **Transferability**: NFTs can be transferred or sold
-- **Automation**: Yield generation is automated
+### **Step 2: Yield Generation**
+- Collateral is deployed to yield-generating strategies by the `StrategyManager`.
+- Yield is tracked and distributed by the `YieldDistribution` contract.
 
-## Important Considerations
+### **Step 3: Claim or Reinvest Yield**
+- NFT holders can claim their yield or reinvest it to increase the bond's principal amount.
 
-- Protocol fees apply (1% on yield)
-- Yield rates may vary based on market conditions
-- Gas fees for transactions
-- Smart contract risks exist
-- Always do your own research
+### **Step 4: Trade NFTs**
+- Bond NFTs can be sold or transferred, with ownership automatically updated.
 
-## Getting Started
+---
 
-1. **Connect Wallet**
-   - Use MetaMask or any Web3 wallet
-   - Ensure you have tokens to deposit
+## **Smart Contracts**
 
-2. **Choose Bond Series**
-   - View available series
-   - Check yield rates
-   - Select preferred token
+### **1. BondFactory**
+- Manages bond series, collateral deposits, and NFT minting.
+- Key Functions:
+  - `createBondSeries`: Creates a new bond series.
+  - `depositCollateral`: Handles user deposits and mints NFTs.
 
-3. **Make Deposit**
-   - Approve token spending
-   - Specify amount
-   - Receive bond NFT
+### **2. BondToken**
+- Represents Bond NFTs and manages bond metadata.
+- Key Functions:
+  - `mint`: Mints new Bond NFTs.
+  - `claimYield`: Allows NFT holders to claim yield.
 
-4. **Manage Your Bond**
-   - View bond details
-   - Track yield
-   - Choose action:
-     - Claim yield
-     - Reinvest yield
+### **3. YieldDistribution**
+- Manages yield streams and distributes yield to NFT holders.
+- Key Functions:
+  - `distributeYield`: Updates yield streams.
+  - `claimYield`: Transfers earned yield to NFT holders.
+  - `reinvestYield`: Reinvests yield into the bond's principal.
 
-## Technical Details
+### **4. StrategyManager**
+- Deploys collateral to yield-generating strategies and handles rebalancing.
+- Key Functions:
+  - `deployCollateral`: Allocates collateral to strategies.
+  - `rebalanceStrategy`: Adjusts collateral allocations.
 
-For developers and technical users:
-- Solidity version: 0.8.19
-- Framework: Foundry
-- Network: Sepolia testnet (for testing)
+### **5. ProtocolTreasury**
+- Manages protocol fees and reserves.
+- Key Functions:
+  - `collectFees`: Collects fees from yield distributions.
+  - `emergencyWithdraw`: Allows emergency withdrawals.
 
-## License
+---
 
-MIT
+## **AI Agents**
+
+### **1. YieldStrategyAgent**
+- Optimizes yield generation across strategies.
+
+### **2. RiskManagementAgent**
+- Monitors risks and ensures protocol safety.
+
+### **3. RebalancingAgent**
+- Rebalances collateral to maintain efficiency.
+
+### **4. PriceOracleAgent**
+- Tracks market prices for informed decision-making.
+
+---
+
+## **Get Started**
+
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   ```
+2. Install dependencies:
+   ```bash
+   cd pyb-protocol
+   npm install
+   ```
+3. Deploy the contracts:
+   ```bash
+   forge script script/Deploy.s.sol --rpc-url <RPC_URL> --private-key <PRIVATE_KEY>
+   ```
+4. Run the AI agents:
+   ```bash
+   python agents/run_agents.py
+   ```
+
+---
+
+## **License**
+This project is licensed under the MIT License.
