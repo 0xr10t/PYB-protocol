@@ -2,6 +2,9 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Script.sol";
+import "../src/mocks/MockERC20.sol";
+
+
 import "../src/BondFactory.sol";
 import "../src/YieldDistribution.sol";
 import "../src/StrategyManager.sol";
@@ -12,6 +15,9 @@ contract DeployScript is Script {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
+
+        MockERC20 token = new MockERC20("Mock Token", "MTK", msg.sender);
+        token.mint(msg.sender, 100_000 ether);
 
         // Deploy StrategyManager
         StrategyManager strategyManager = new StrategyManager(
@@ -31,12 +37,15 @@ contract DeployScript is Script {
         // Deploy YieldDistribution with temporary BondFactory
         YieldDistribution yieldDistribution = new YieldDistribution(
             address(treasury),
-            tempBondFactory, // Temporary address that will be updated
+            tempBondFactory,
             100 // 1% protocol fee
         );
 
-        MockLendingProtocol mockLending = new MockLendingProtocol(address(0));
-
+        // Deploy MockLendingProtocol with deployed token address
+        MockLendingProtocol mockLending = new MockLendingProtocol(
+            address(token),
+            msg.sender
+        );
 
         // Deploy BondFactory
         BondFactory factory = new BondFactory(
@@ -50,20 +59,21 @@ contract DeployScript is Script {
         treasury.setYieldDistribution(address(yieldDistribution));
 
         // Set up initial configuration
-        treasury.addSupportedToken(address(0)); // ETH
-        strategyManager.addSupportedToken(address(0)); // ETH
-        strategyManager.setStrategy(address(0), 0, address(mockLending));
+        treasury.addSupportedToken(address(token));
+        strategyManager.addSupportedToken(address(token));
+        strategyManager.setStrategy(address(token), 0, address(mockLending));
+
         vm.stopBroadcast();
 
         console.log("Deployment Addresses:");
+        console.log("Token:", address(token));
         console.log("StrategyManager:", address(strategyManager));
         console.log("Treasury:", address(treasury));
         console.log("YieldDistribution:", address(yieldDistribution));
         console.log("BondFactory:", address(factory));
+        console.log("MockLendingProtocol:", address(mockLending));
     }
 }
 
 // Temporary proxy contract to provide a non-zero address
-contract TemporaryProxy {
-
-}
+contract TemporaryProxy {}
