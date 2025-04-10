@@ -6,6 +6,7 @@ import "../src/BondFactory.sol";
 import "../src/YieldDistribution.sol";
 import "../src/StrategyManager.sol";
 import "../src/ProtocolTreasury.sol";
+import "../src/mocks/MockLendingProtocol.sol";
 
 contract DeployScript is Script {
     function run() external {
@@ -34,6 +35,9 @@ contract DeployScript is Script {
             100 // 1% protocol fee
         );
 
+        MockLendingProtocol mockLending = new MockLendingProtocol(address(0));
+
+
         // Deploy BondFactory
         BondFactory factory = new BondFactory(
             address(treasury),
@@ -48,7 +52,7 @@ contract DeployScript is Script {
         // Set up initial configuration
         treasury.addSupportedToken(address(0)); // ETH
         strategyManager.addSupportedToken(address(0)); // ETH
-
+        strategyManager.setStrategy(address(0), 0, address(mockLending));
         vm.stopBroadcast();
 
         console.log("Deployment Addresses:");
@@ -60,4 +64,6 @@ contract DeployScript is Script {
 }
 
 // Temporary proxy contract to provide a non-zero address
-contract TemporaryProxy {} 
+contract TemporaryProxy {
+
+}

@@ -5,7 +5,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
-import "../src/mocks/MockLendingProtocol.sol";
 
 contract StrategyManager is Ownable, ReentrancyGuard, AutomationCompatibleInterface {
     // Events
@@ -86,15 +85,18 @@ contract StrategyManager is Ownable, ReentrancyGuard, AutomationCompatibleInterf
         if (newAmount > oldAmount + minRebalanceAmount) {
             // Deploy additional funds
             uint256 additionalAmount = newAmount - oldAmount;
-           IERC20(token).approve(strategy.lendingProtocol, additionalAmount);
-MockLendingProtocol(strategy.lendingProtocol).deposit(address(this), additionalAmount);
-
+            IERC20(token).transfer(strategy.lendingProtocol, additionalAmount);
             strategy.depositedAmount = newAmount;
         } else if (oldAmount > newAmount + minRebalanceAmount) {
             // Withdraw excess funds
             uint256 withdrawAmount = oldAmount - newAmount;
-            MockLendingProtocol(strategy.lendingProtocol).withdraw(address(this), withdrawAmount);
-
+            strategy.lendingProtocol.call(
+                abi.encodeWithSignature(
+                    "withdraw(address,uint256)",
+                    token,
+                    withdrawAmount
+                )
+            );
             strategy.depositedAmount = newAmount;
         }
 
