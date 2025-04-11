@@ -137,3 +137,8 @@ Welcome to the **PYB Protocol**! This decentralized finance (DeFi) protocol allo
 
 ## **License**
 This project is licensed under the MIT License.
+
+#contributions
+Soham - Smartcontract(BondFactory) + AI agents +Integration
+Mohit- Remaining Smart contracts
+Rishi-Frontend+ Integration
