@@ -102,6 +102,7 @@ Welcome to the **PYB Protocol**! This decentralized finance (DeFi) protocol allo
 
 ### **4. PriceOracleAgent**
 - Tracks market prices for informed decision-making.
+  
 ![image](https://github.com/user-attachments/assets/c39f2849-39f8-476d-98ba-6ac49471ac8a)
 
 ---
@@ -114,7 +115,9 @@ Welcome to the **PYB Protocol**! This decentralized finance (DeFi) protocol allo
    ```
 2. Install dependencies:
    ```bash
-   cd pyb-protocol
+   cd PYB-protocol
+   forge install
+   cd frontend/PYB
    npm install
    ```
 3. Deploy the contracts:
@@ -123,7 +126,8 @@ Welcome to the **PYB Protocol**! This decentralized finance (DeFi) protocol allo
    ```
 4. Run the AI agents:
    ```bash
-   python agents/run_agents.py
+   cd agentKit/agentkit/python/examples/langchain-cdp-chatbot
+   python chatbot.py
    ```
 
 ---
