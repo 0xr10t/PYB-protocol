@@ -7,3 +7,6 @@
 [submodule "lib/chainlink-brownie-contracts"]
 	path = lib/chainlink-brownie-contracts
 	url = https://github.com/smartcontractkit/chainlink-brownie-contracts
+[submodule "agentKit/agentkit"]
+	path = agentKit/agentkit
+	url = https://github.com/coinbase/agentkit
