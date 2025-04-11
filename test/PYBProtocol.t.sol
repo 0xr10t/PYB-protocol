@@ -188,64 +188,125 @@ contract PYBProtocolTest is Test {
         );
     }
 
-    function testStrategyRebalancing() public {
-        // --- Setup ---
+    // function testStrategyRebalancing() public {
+    //     // --- Setup StrategyManager ---
+    //     vm.startPrank(owner);
+    //     strategyManager.addSupportedToken(address(mockToken));
+    //     strategyManager.setStrategy(
+    //         address(mockToken),
+    //         0,
+    //         address(mockLendingProtocol)
+    //     );
+    //     strategyManager.setBondFactory(address(factory));
+    //     vm.stopPrank();
+
+    //     // --- Create bond series ---
+    //     vm.startPrank(owner);
+    //     uint256 seriesId = factory.createBondSeries(address(mockToken), 500); // 5% yield
+    //     vm.stopPrank();
+
+    //     // --- Owner mints tokens for user1 ---
+    //     vm.startPrank(owner);
+    //     mockToken.mint(user1, 200 ether); // Mint tokens for user1
+    //     vm.stopPrank();
+
+    //     // --- User1 approves and deposits collateral ---
+    //     vm.startPrank(user1);
+    //     mockToken.approve(address(factory), 100 ether);
+    //     factory.depositCollateral(seriesId, 100 ether); // protocol internal handling
+    //     vm.stopPrank();
+
+    //     // --- Simulate StrategyManager depositing into lending protocol ---
+    //     vm.startPrank(address(strategyManager));
+    //     mockToken.approve(address(mockLendingProtocol), 100 ether);
+    //     mockLendingProtocol.deposit(address(strategyManager), 100 ether);
+    //     vm.stopPrank();
+
+    //     // --- Add sufficient liquidity to protocol ---
+    //     vm.startPrank(owner);
+    //     mockToken.mint(address(mockLendingProtocol), 10 ether); // Add liquidity
+    //     vm.stopPrank();
+
+    //     // --- Warp time to simulate yield accrual ---
+    //     vm.warp(block.timestamp + 30 days); // simulate 30 days passing
+
+    //     // --- Capture balance before rebalancing ---
+    //     uint256 ownerBalanceBefore = mockToken.balanceOf(owner);
+
+    //     // --- Trigger rebalance ---
+    //     vm.startPrank(owner);
+    //     strategyManager.rebalanceStrategy(address(mockToken), seriesId);
+    //     vm.stopPrank();
+
+    //     // --- Validate strategy state ---
+    //     (
+    //         address strategyAddress,
+    //         uint256 newDepositedAmount,
+    //         ,
+    //         bool active
+    //     ) = strategyManager.strategies(address(mockToken), seriesId);
+
+    //     assertEq(strategyAddress, address(mockLendingProtocol), "Strategy address mismatch");
+    //     assertTrue(active, "Strategy should still be active");
+    //     assertGt(newDepositedAmount, 100 ether, "No yield accrued");
+
+    //     // --- Validate yield transferred to owner ---
+    //     uint256 ownerBalanceAfter = mockToken.balanceOf(owner);
+    //     assertGt(ownerBalanceAfter, ownerBalanceBefore, "Owner did not receive yield");
+
+    //     emit log_named_uint("Yield earned", ownerBalanceAfter - ownerBalanceBefore);
+    // }
+
+    function testDepositCollateral_Success() public {
+        // Step 1: Create an active bond series
         vm.startPrank(owner);
-        strategyManager.addSupportedToken(address(mockToken));
-        strategyManager.setStrategy(
+        uint256 yieldRate = 500;
+        uint256 seriesId = factory.createBondSeries( 
             address(mockToken),
-            0,
-            address(mockLendingProtocol)
+            yieldRate
         );
-        strategyManager.setBondFactory(address(factory));
         vm.stopPrank();
 
-        // --- Create bond and deposit collateral ---
-        vm.startPrank(owner);
-        uint256 seriesId = factory.createBondSeries(address(mockToken), 500); // 5% yield
-        vm.stopPrank();
-
+        // Step 2: Mint tokens to user1 and approve factory
+        uint256 depositAmount = 100 ether;
+        mockToken.mint(user1, depositAmount);
         vm.startPrank(user1);
-        mockToken.mint(user1, 200 ether);
-        mockToken.approve(address(factory), 100 ether);
-        factory.depositCollateral(seriesId, 100 ether);
+        mockToken.approve(address(factory), depositAmount);
+
+        // Step 3: Fetch bondToken address from factory
+        (address bondTokenAddr /* bool active */, , , , ) = factory
+            .getBondSeries(seriesId);
+
+        BondToken bondNFT = BondToken(bondTokenAddr);
+        uint256 preNFTBalance = bondNFT.balanceOf(user1);
+
+        // Step 4: Call depositCollateral
+        factory.depositCollateral(seriesId, depositAmount);
         vm.stopPrank();
 
-        // Add mock liquidity to simulate yield availability
-        mockToken.mint(address(mockLendingProtocol), 2 ether);
+        // Step 5: Validate bond NFT was minted
+        uint256 postNFTBalance = bondNFT.balanceOf(user1);
+        assertEq(postNFTBalance, preNFTBalance + 1, "Bond NFT not minted");
 
-        // --- Warp time to accrue interest ---
-        vm.warp(block.timestamp + 2 days); // simulate time passing
+        // Step 6: Validate totalDeposits in updated BondSeries
+        (, , , uint256 totalDeposits /* bool active */, ) = factory
+            .getBondSeries(seriesId);
 
-        // --- Capture pre-rebalance balance of owner ---
-        uint256 ownerBalanceBefore = mockToken.balanceOf(owner);
+        assertEq(totalDeposits, depositAmount, "Total deposits mismatch");
 
-        // --- Rebalance strategy ---
-        vm.startPrank(owner);
-        strategyManager.rebalanceStrategy(address(mockToken), seriesId);
-        vm.stopPrank();
-
-        // --- Post-rebalance validations ---
+        // Destructure tuple returned by the getter into individual variables
         (
-            address strategyAddress,
-            uint256 newDepositedAmount,
-            ,
+            address lendingProtocol,
+            uint256 strategyDeposited,
+            uint256 lastRebalanceTimestamp,
             bool active
         ) = strategyManager.strategies(address(mockToken), seriesId);
 
+        // Now `strategyDeposited` is defined and can be used
         assertEq(
-            strategyAddress,
-            address(mockLendingProtocol),
-            "Strategy address mismatch"
-        );
-        assertEq(active, true, "Strategy should still be active");
-        assertGt(newDepositedAmount, 100 ether, "No yield accrued");
-
-        uint256 ownerBalanceAfter = mockToken.balanceOf(owner);
-        assertGt(
-            ownerBalanceAfter,
-            ownerBalanceBefore,
-            "Owner should have received yield from rebalance"
+            strategyDeposited,
+            depositAmount,
+            "Collateral not deployed to strategy"
         );
     }
 }

@@ -35,22 +35,19 @@ contract MockLendingProtocol is Ownable {
     }
 
     function getAccruedBalance(address user) public view returns (uint256) {
-        uint256 base = deposits[user];
-        if (base == 0) return 0;
+    uint256 base = deposits[user];
+    if (base == 0) return 0;
 
-        uint256 timeElapsed = block.timestamp - lastDepositTime[user];
-        uint256 interest = (base * interestRatePerSecond * timeElapsed) / 1e6; // 1e6 since 100 = 0.01%
-        return base + interest;
-    }
+    uint256 timeElapsed = block.timestamp - lastDepositTime[user];
+    uint256 interest = (base * interestRatePerSecond * timeElapsed) / 1e6; // 1e6 since 100 = 0.01%
+    return base + interest;
+}
 
-    function _accrueInterest(address user) internal {
-        uint256 base = deposits[user];
-        if (base == 0) return;
-
-        uint256 accrued = getAccruedBalance(user);
-        deposits[user] = accrued;
-        lastDepositTime[user] = block.timestamp;
-    }
+function _accrueInterest(address user) internal {
+    uint256 accrued = getAccruedBalance(user);
+    deposits[user] = accrued; // Update the deposit with accrued interest
+    lastDepositTime[user] = block.timestamp;
+}
 
     // Admin
     function setInterestRate(uint256 newRate) external onlyOwner {

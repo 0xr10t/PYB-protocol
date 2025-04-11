@@ -32,6 +32,7 @@ contract StrategyManager is
 
     mapping(address => mapping(uint256 => Strategy)) public strategies;
     mapping(address => bool) public supportedTokens;
+    address[] public supportedTokenList; // New array to track added tokens
     uint256 public rebalanceInterval;
     uint256 public minRebalanceAmount;
     address public bondFactory;
@@ -76,37 +77,44 @@ contract StrategyManager is
         emit StrategyDeployed(token, amount, seriesId);
     }
 
-    function rebalanceStrategy(
-        address token,
-        uint256 seriesId
-    ) public onlyOwner nonReentrant {
-        Strategy storage strategy = strategies[token][seriesId];
-        require(strategy.active, "Strategy not active");
-        require(
-            block.timestamp >=
-                strategy.lastRebalanceTimestamp + rebalanceInterval,
-            "Too early to rebalance"
-        );
+   function rebalanceStrategy(
+    address token,
+    uint256 seriesId
+) public onlyOwner nonReentrant {
+    Strategy storage strategy = strategies[token][seriesId];
+    require(strategy.active, "Strategy not active");
+    require(
+        block.timestamp >=
+            strategy.lastRebalanceTimestamp + rebalanceInterval,
+        "Too early to rebalance"
+    );
 
-        MockLendingProtocol protocol = MockLendingProtocol(
-            strategy.lendingProtocol
-        );
-        uint256 accruedAmount = protocol.getAccruedBalance(address(this));
-        uint256 oldAmount = strategy.depositedAmount;
+    MockLendingProtocol protocol = MockLendingProtocol(
+        strategy.lendingProtocol
+    );
 
-        if (accruedAmount > oldAmount + minRebalanceAmount) {
-            uint256 profit = accruedAmount - oldAmount;
-            protocol.withdraw(address(this), profit);
-            IERC20(token).transfer(owner(), profit); // send yield to owner or treasury
-        }
+    // Accrue interest before calculating balances
+    protocol.withdraw(address(this), 0); // Trigger interest accrual
 
-        strategy.lastRebalanceTimestamp = block.timestamp;
-        emit StrategyRebalanced(token, oldAmount, accruedAmount);
-        strategy.depositedAmount = accruedAmount;
+    uint256 accruedAmount = protocol.getAccruedBalance(address(this));
+    uint256 oldAmount = strategy.depositedAmount;
+
+    if (accruedAmount > oldAmount + minRebalanceAmount) {
+        uint256 profit = accruedAmount - oldAmount;
+        protocol.withdraw(address(this), profit);
+        IERC20(token).transfer(owner(), profit); // send yield to owner or treasury
     }
 
+    strategy.lastRebalanceTimestamp = block.timestamp;
+    emit StrategyRebalanced(token, oldAmount, accruedAmount);
+    strategy.depositedAmount = accruedAmount;
+}
+
     function addSupportedToken(address token) external onlyOwner {
-        supportedTokens[token] = true;
+        if (!supportedTokens[token]) {
+            supportedTokens[token] = true;
+            supportedTokenList.push(token); // add to list for upkeep loop
+        }
     }
 
     function setStrategy(
@@ -133,7 +141,6 @@ contract StrategyManager is
         return strategy.depositedAmount;
     }
 
-    // Chainlink Automation
     function checkUpkeep(
         bytes calldata
     )
@@ -145,25 +152,21 @@ contract StrategyManager is
         upkeepNeeded = false;
         performData = "";
 
-        address[3] memory tokens = [address(1), address(2), address(3)];
-        for (uint256 i = 0; i < 10; i++) {
-            for (uint256 j = 0; j < 3; j++) {
-                address token = tokens[j];
-                Strategy storage strategy = strategies[token][i];
+        for (uint256 i = 0; i < supportedTokenList.length; i++) {
+            address token = supportedTokenList[i];
+            for (uint256 j = 0; j < 10; j++) {
+                Strategy storage strategy = strategies[token][j];
                 if (
                     strategy.active &&
                     block.timestamp >=
                     strategy.lastRebalanceTimestamp + rebalanceInterval
                 ) {
                     upkeepNeeded = true;
-                    performData = abi.encode(token, i);
-                    break;
+                    performData = abi.encode(token, j);
+                    return (upkeepNeeded, performData);
                 }
             }
-            if (upkeepNeeded) break;
         }
-
-        return (upkeepNeeded, performData);
     }
 
     function performUpkeep(bytes calldata performData) external override {
