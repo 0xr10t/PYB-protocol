@@ -102,6 +102,7 @@ Welcome to the **PYB Protocol**! This decentralized finance (DeFi) protocol allo
 
 ### **4. PriceOracleAgent**
 - Tracks market prices for informed decision-making.
+![image](https://github.com/user-attachments/assets/c39f2849-39f8-476d-98ba-6ac49471ac8a)
 
 ---
 
