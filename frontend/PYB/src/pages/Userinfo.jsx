@@ -1,8 +1,11 @@
 import React, { useState, useEffect, Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
-import {Sky} from '../models/sky'
+import { Sky } from '../models/sky'
 import { useWeb3 } from '../hooks/useWeb3'
 import { useBonds } from '../hooks/useBonds'
+import { ethers } from 'ethers'
+// New import for bond token ABI
+import BondTokenABI from '../contracts/abis/BondToken.json'
 
 const PYBMarketPlace = () => {
   const [netWorth, setNetWorth] = useState(0)
@@ -12,7 +15,7 @@ const PYBMarketPlace = () => {
   const [assetsToSupply, setAssetsToSupply] = useState([])
   const [assetsToBorrow, setAssetsToBorrow] = useState([])
   const { account, connectWallet, contracts, signer } = useWeb3()
-  const { getBondSeries, depositCollateral, loading, error } = useBonds(contracts, signer)
+  const { getBondSeries, depositCollateral, withdrawCollateral, loading, error } = useBonds(contracts, signer)
   const [bondSeries, setBondSeries] = useState([])
   
   // State for deposit form
@@ -39,6 +42,9 @@ const PYBMarketPlace = () => {
     success: false
   });
 
+  // New state for NFTs
+  const [myNFTs, setMyNFTs] = useState([])
+
   useEffect(() => {
     const fetchBondSeries = async () => {
       if (!contracts?.bondFactory) return
@@ -56,7 +62,8 @@ const PYBMarketPlace = () => {
               amount: seriesData.totalDeposits,
               value: seriesData.totalDeposits, // You might want to calculate this based on current price
               apy: seriesData.initialYield,
-              active: seriesData.active
+              active: seriesData.active,
+              bondToken: seriesData.bondToken // Ensure bondToken is included
             })
           }
         }
@@ -68,6 +75,35 @@ const PYBMarketPlace = () => {
 
     fetchBondSeries()
   }, [contracts, getBondSeries])
+
+  // New useEffect to fetch NFTs owned by the account
+  useEffect(() => {
+    const fetchMyNFTs = async () => {
+      if (!account || !signer || bondSeries.length === 0) return
+      const nfts = []
+      for (const series of bondSeries) {
+        // Ensure series has bondToken property
+        if (!series.bondToken) continue
+        try {
+          const bondTokenContract = new ethers.Contract(series.bondToken, BondTokenABI.abi, signer)
+          const balance = await bondTokenContract.balanceOf(account)
+          const bal = balance.toNumber()
+          for (let i = 0; i < bal; i++) {
+            const tokenId = await bondTokenContract.tokenOfOwnerByIndex(account, i)
+            nfts.push({
+              seriesId: series.id,
+              seriesName: series.name,
+              tokenId: tokenId.toString()
+            })
+          }
+        } catch (err) {
+          console.error('Error fetching NFTs for series', series.id, err)
+        }
+      }
+      setMyNFTs(nfts)
+    }
+    fetchMyNFTs()
+  }, [account, signer, bondSeries])
 
   // Handle deposit form changes
   const handleInputChange = (e) => {
@@ -88,26 +124,18 @@ const PYBMarketPlace = () => {
 
     setDepositStatus({ loading: true, error: null, success: false });
     try {
-      // First approve the token transfer if needed (you'll need to implement this)
-      // await approveToken(depositForm.amount);
-
-      // Then deposit
+      // Now call depositCollateral without passing signer explicitly
       const tx = await depositCollateral(
-        signer,
         parseInt(depositForm.seriesId),
         depositForm.amount
       );
-      
-      // Wait for transaction to be mined
       await tx.wait();
-      
+
       setDepositStatus({ loading: false, error: null, success: true });
-      setDepositForm({ seriesId: '', amount: '' }); // Reset form
-      
-      // Refresh bond series data
+      setDepositForm({ seriesId: '', amount: '' });
       const seriesData = await getBondSeries(depositForm.seriesId);
       setBondSeries(prev => prev.map(series => 
-        series.id === parseInt(depositForm.seriesId) 
+        series.id === parseInt(depositForm.seriesId)
           ? {
               ...series,
               amount: seriesData.totalDeposits,
@@ -349,6 +377,35 @@ const PYBMarketPlace = () => {
                   </div>
                 )}
               </form>
+            )}
+          </div>
+
+          {/* New My PYBs Section */}
+          <div className="mt-8 p-6 bg-gray-700 rounded-lg">
+            <h3 className="text-xl font-bold mb-4">My PYBs</h3>
+            {account ? (
+              myNFTs.length > 0 ? (
+                <table className="w-full">
+                  <thead>
+                    <tr className="text-left text-gray-400">
+                      <th className="pb-4">Series</th>
+                      <th className="pb-4">Token ID</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {myNFTs.map((nft, idx) => (
+                      <tr key={idx} className="border-t border-gray-700">
+                        <td className="py-4">{nft.seriesName}</td>
+                        <td className="py-4">{nft.tokenId}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="py-4">No PYB NFTs found.</div>
+              )
+            ) : (
+              <div className="py-4">Connect wallet to view your PYBs.</div>
             )}
           </div>
         </div>

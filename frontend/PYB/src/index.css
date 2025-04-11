@@ -5,12 +5,13 @@
 @tailwind utilities;
 
 :root {
-  --blue-rgb: 237 245 255;
-  --green-rgb: 125 161 35;
+  --orange-brown-light: 210, 180, 140;
+  --orange-brown-dark: 139, 69, 19;
 }
 
 body {
   font-family: "Work Sans", sans-serif;
+  color: rgb(var(--orange-brown-dark));
 }
 
 body:has(.card[data-color="blue"]:hover) {
@@ -27,27 +28,31 @@ body:has(.card[data-color="green"]:hover) {
   }
 
   .head-text {
-    @apply sm:text-5xl text-3xl font-semibold sm:leading-snug font-poppins;
+    @apply sm:text-5xl text-3xl font-semibold sm:leading-snug font-poppins text-[#8B4513];
   }
 
   .subhead-text {
-    @apply font-semibold sm:text-3xl text-xl relative font-poppins;
+    @apply font-semibold sm:text-3xl text-xl relative font-poppins text-[#A0522D];
   }
 
   .blue-gradient_text {
     @apply bg-gradient-to-r from-[#00c6ff] to-[#0072ff] bg-clip-text text-transparent;
   }
 
+  .orange-gradient_text {
+    @apply bg-gradient-to-r from-[#D2691E] to-[#8B4513] bg-clip-text text-transparent;
+  }
+
   .input {
-    @apply bg-white border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 mt-2.5 font-normal shadow-card;
+    @apply bg-white border border-[#DEB887] text-[#8B4513] text-sm rounded-lg focus:ring-[#CD853F] focus:border-[#CD853F] block w-full p-2.5 mt-2.5 font-normal shadow-card;
   }
 
   .textarea {
-    @apply block p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-200 focus:ring-blue-500 focus:border-blue-500 mt-2.5 font-normal shadow-card;
+    @apply block p-2.5 w-full text-sm text-[#8B4513] bg-white rounded-lg border border-[#DEB887] focus:ring-[#CD853F] focus:border-[#CD853F] mt-2.5 font-normal shadow-card;
   }
 
   .btn {
-    @apply text-white bg-gradient-to-r from-[#00c6ff] to-[#0072ff] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center;
+    @apply text-white bg-gradient-to-r from-[#D2691E] to-[#8B4513] focus:ring-4 focus:outline-none focus:ring-[#DEB887] font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center;
   }
 
   .header {
@@ -63,7 +68,7 @@ body:has(.card[data-color="green"]:hover) {
   }
 
   .info-box {
-    @apply mx-5 relative flex text-white flex-col gap-3 max-w-2xl neo-brutalism-blue pt-4 pb-12 px-8;
+    @apply mx-5 relative flex text-[#8B4513] flex-col gap-3 max-w-2xl neo-brutalism-orange pt-4 pb-12 px-8;
   }
 
   .neo-btn {
@@ -80,11 +85,11 @@ body:has(.card[data-color="green"]:hover) {
 }
 
 .glassmorphism {
-  background: rgba(8, 116, 239, 0.07);
+  background: rgba(210, 105, 30, 0.07);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(222, 184, 135, 0.18);
 }
 
 .logo {
@@ -180,4 +185,11 @@ body:has(.card[data-color="green"]:hover) {
   border: #fff;
   box-shadow: 0.6vmin 0.6vmin #fff, 1vmin 1vmin #d2e4ff, 1vmin 1vmin #d2e4ff,
     0.65vmin 1vmin #d2e4ff, 1vmin 0.65vmin #d2e4ff;
+}
+
+.neo-brutalism-orange {
+  background: #DEB887;
+  border: 1px solid #8B4513;
+  border-radius: 10px;
+  box-shadow: 3px 3px 0 0 #8B4513;
 }

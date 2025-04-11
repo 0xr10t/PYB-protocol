@@ -66,31 +66,21 @@ export const useBonds = (contracts, signer) => {
     }, [contracts, signer]);
 
     // Deposit collateral into a bond series
-    const depositCollateral = useCallback(async (signer, seriesId, amount) => {
+    const depositCollateral = useCallback(async (seriesId, amount) => {
         if (!signer) {
             throw new Error('Signer not initialized');
         }
-
         setLoading(true);
         try {
-            // Get bond series details to get collateral token address
             const bondFactory = new ethers.Contract(
                 CONTRACT_ADDRESSES.BondFactory,
                 BondFactoryABI.abi,
                 signer
             );
-
-            // Get series details to find collateral token
             const series = await bondFactory.getBondSeries(seriesId);
             const collateralToken = series.collateralToken;
-
-            // Convert amount to Wei
             const amountInWei = parseAmount(amount);
-
-            // First approve the token transfer
             await approveToken(collateralToken, amountInWei);
-
-            // Then send deposit transaction
             const tx = await bondFactory.depositCollateral(
                 seriesId,
                 amountInWei,
@@ -98,8 +88,6 @@ export const useBonds = (contracts, signer) => {
                     gasLimit: 300000
                 }
             );
-
-            // Wait for transaction to be mined
             const receipt = await tx.wait();
             return receipt;
         } catch (err) {
@@ -108,7 +96,7 @@ export const useBonds = (contracts, signer) => {
         } finally {
             setLoading(false);
         }
-    }, [approveToken]);
+    }, [approveToken, signer]);
 
     // Get bond series details
     const getBondSeries = useCallback(async (seriesId) => {
@@ -328,4 +316,4 @@ export const useBonds = (contracts, signer) => {
         getYieldStream,
         approveToken
     };
-}; 
+};

@@ -24,26 +24,16 @@ const About = () => {
       {/* Content Container - Fixed position, non-scrollable */}
       <div className="absolute inset-0 flex flex-col items-center p-8">
         {/* Header Section */}
-        <div className="text-center mb-12 mt-8">
-          <h1 className="text-5xl font-bold text-white mb-2 drop-shadow-lg">About PyB</h1>
-          <p className="text-xl text-white drop-shadow-md">
-            A powerful solution designed to transform your workflow
-          </p>
-        </div>
-
-        {/* Project Overview */}
-        <div className="w-full max-w-3xl mb-16">
-          <h2 className="text-3xl font-semibold text-white mb-4 drop-shadow-lg">Project Overview</h2>
-          
-          <p className="text-white text-lg drop-shadow-md italic">
-            Add your custom project overview and explanation here. Describe what PyB is, its
-            purpose, features, and how it solves problems.
+        <div className="max-w-7xl mx-auto text-center mb-12 mt-8 px-4">
+          <h1 className="text-5xl font-bold orange-gradient_text mb-2 drop-shadow-lg">About PyB</h1>
+          <p className="text-xl text-[#8B4513] leading-relaxed drop-shadow-md">
+            Perpetual Yield Bonds (PYB) is an innovative DeFi protocol that bridges traditional finance with blockchain technology. Our protocol allows users to lock their crypto assets (such as ETH, stETH, or DAI) and receive NFT-based bonds in return, complete with continuous yield streaming capabilities. These bonds are fully tradable on secondary markets, solving the liquidity problem traditional staking faces. Through our advanced StrategyManager, deposits are automatically optimized across various yield-generating protocols, while our YieldDistribution system ensures transparent and efficient streaming of yields to bondholders. The protocol features automated rebalancing via Chainlink, comprehensive security measures, and an emergency reserve system managed by our ProtocolTreasury, making PYB a secure and efficient solution for generating sustainable yields in DeFi.
           </p>
         </div>
 
         {/* Interactive Demo - Fox Model */}
         <div className="w-full max-w-3xl mt-auto">
-          <p className="text-white text-md mb-4 drop-shadow-md">Click on the fox to see it move!</p>
+          <p className="text-[#A0522D] text-md mb-4 drop-shadow-md">Click on the fox to see it move!</p>
           
           <div className="h-64 w-full">
             <Canvas camera={{ position: [0, 2, 5], fov: 45 }}>

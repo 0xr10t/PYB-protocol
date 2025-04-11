@@ -26,7 +26,7 @@ export const useWeb3 = () => {
                     setChainId(network.chainId.toString());
 
                     // Initialize contracts with provider
-                    const contractInstances = initializeContracts(provider);
+                    const contractInstances = initializeContracts(provider); // Ensure this uses updated addresses
                     if (contractInstances) {
                         setContracts(contractInstances);
                     }
@@ -44,7 +44,7 @@ export const useWeb3 = () => {
                     setProvider(provider);
                     
                     // Initialize contracts with read-only provider
-                    const contractInstances = initializeContracts(provider);
+                    const contractInstances = initializeContracts(provider); // Ensure this uses updated addresses
                     if (contractInstances) {
                         setContracts(contractInstances);
                     }
@@ -100,7 +100,7 @@ export const useWeb3 = () => {
             const signer = await provider.getSigner();
             setSigner(signer);
             
-            const contractInstances = initializeContracts(provider);
+            const contractInstances = initializeContracts(provider); // Ensure this uses updated addresses
             if (contractInstances) {
                 setContracts(contractInstances);
             }
@@ -163,4 +163,4 @@ export const useWeb3 = () => {
         disconnectWallet,
         switchNetwork
     };
-}; 
+};
