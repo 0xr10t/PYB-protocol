@@ -1,4 +1,4 @@
-heres the video for our project
+# Video Link
 https://vimeo.com/1074681449/aa219e98c6?ts=0&share=copy
 
 # PYB Protocol
@@ -134,7 +134,10 @@ Welcome to the **PYB Protocol**! This decentralized finance (DeFi) protocol allo
    ```
 
 ---
-
+## Contributions 
+Mohit -> Smart Contracts
+Rishi -> Frontend
+Soham -> Integrations + AI agents 
 ## **License**
 This project is licensed under the MIT License.
 
